@@ -1,52 +1,22 @@
-const gulp = require("gulp");
-const sass = require("gulp-sass");
-
-// File path variable declarations
-var stylePath = "";
-
-// Paths array
-var path = {
-  scss: ["../assets/sass/**/main.scss"],
-  watch_scss: ["../assets/sass/**/*.scss"],
-  theme_base: ["../assets/css/"],
-};
-
-// Process SASS functionality
-gulp.task("process-scss", function () {
-  console.log("paths:");
-  console.log(path);
+"use strict";
+var gulp = require("gulp");
+var sass = require("gulp-sass");
+var concat = require("gulp-concat");
+var srcPath = "./assets/sass/**/main.scss";
+var outPath = "./assets/css/";
+sass.compiler = require("node-sass");
+gulp.task("sass", function () {
   return gulp
-    .src(path.scss)
-    .pipe(
-      gulp.dest(function (file) {
-        stylePath = path.theme_base;
-        return file.base;
-      })
-    )
-    .pipe(
-      sass({
-        compass: true,
-        style: "expanded",
-      })
-    )
+    .src(srcPath)
+    .pipe(concat("main.scss"))
+    .pipe(sass().on("error", sass.logError))
     .pipe(
       gulp.dest(function () {
-        return stylePath + "main.css";
+        console.log("outputting to assets/css/main.css");
+        return outPath;
       })
-    )
-    .pipe(
-      gulp.dest(function () {
-        console.log("destination path:  ");
-        console.log(stylePath);
-        return stylePath;
-      })
-    )
-    .on("error", sass.logError);
+    );
 });
-gulp.task("watch", function () {
-  gulp.watch(
-    path.watch_scss,
-    { events: "change", delay: 500 },
-    gulp.series("process-scss")
-  );
+gulp.task("sass:watch", function () {
+  gulp.watch(srcPath, gulp.series("sass"));
 });
